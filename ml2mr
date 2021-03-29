@@ -1,0 +1,63 @@
+#!/usr/bin/perl -w
+no warnings 'portable';
+
+# slot 0 is a placeholder for (nil)
+my @free = reverse (1..1048575);
+my %bl;
+
+while (<<>>)
+{
+    if (/^malloc (\d+) = 0x([0-9a-fA-F]+)$/)
+    {
+        my $i = pop @free;
+        defined $i or die "Too many allocs.\n";
+        $bl{hex $2} = $i;
+        print pack('VVVV', 1, $i, $1);
+    }
+    elsif (/^free 0x([0-9a-fA-F]+)$/)
+    {
+        my $i = $bl{hex $1};
+        defined $i or die "free() on an unknown alloc.\n";
+        delete $bl{hex $1};
+        push @free, $i;
+        print pack('VVVV', 2, $i);
+    }
+    elsif (/^free \(nil\)$/)
+    {
+        print pack('VVVV', 2, 0);
+    }
+    elsif (/^realloc 0x([0-9a-fA-F]+) (\d+) = 0x([0-9a-fA-F]+)$/)
+    {
+        my $i = $bl{hex $1};
+        defined $i or die "realloc() on an unknown alloc.\n";
+        delete $bl{hex $1};
+        $bl{hex $3} = $i;
+        print pack('VVVV', 3, $i, $2);
+    }
+    elsif (/^realloc \(nil\) (\d+) = 0x([0-9a-fA-F]+)$/)
+    {
+        my $i = pop @free;
+        defined $i or die "Too many allocs.\n";
+        $bl{hex $2} = $i;
+        print pack('VVVV', 4, $i, $1);
+    }
+    elsif (/^calloc (\d+) (\d+) = 0x([0-9a-fA-F]+)$/)
+    {
+        my $i = pop @free;
+        defined $i or die "Too many allocs.\n";
+        $bl{hex $3} = $i;
+        print pack('VVVV', 5, $i, $1, $2);
+    }
+    elsif (/^memalign (\d+) (\d+) = 0x([0-9a-fA-F]+)$/)
+    {
+        my $i = pop @free;
+        defined $i or die "Too many allocs.\n";
+        $bl{hex $3} = $i;
+        print pack('VVVV', 6, $i, $2, $1);
+    }
+    else
+    {
+        chomp;
+        die "Invalid log line: ｢$_｣\n";   
+    }
+}
