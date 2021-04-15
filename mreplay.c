@@ -104,7 +104,7 @@ static void* worker(void* arg)
 int main(int argc, const char **argv)
 {
     if (!argv[1])
-        die("Usage: mreplay <file.mr>\n");
+        die("Usage: mreplay <file.mr> [#threads]\n");
 
     int fd = open(argv[1], O_RDONLY);
     if (fd == -1)

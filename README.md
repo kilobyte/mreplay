@@ -10,3 +10,25 @@ Tools here:
   (`mreplay` wants the latter)
 
 * mreplay — replay a binary log
+
+
+ml2mr
+=====
+
+Usage: `ml2mr <log.ml >log.mr`
+
+Analyzes the captured log, assigns reusable but non-overlaping "slots" to
+particular allocations, so mreplay won't have to "think" during a run.
+
+
+mreplay
+=======
+
+Usage: `mreplay log.mr [#threads]`
+
+When ran with no second argument, issued malloc-like calls will exactly
+match those captured by the log.
+
+In threaded mode, there's at least one extra alloc per thread, and the order
+of allocs is not preserved.  There's currently no attempt to equalize each
+thread's workload except for a rough initial heurestic.
