@@ -1,4 +1,4 @@
-all: simple libmlog.so mreplay mtr
+all: simple libmlog.so mreplay
 clean:
 	rm -f simple libmlog.so mreplay
 
@@ -9,7 +9,4 @@ libmlog.so: libmlog.c
 	gcc -Wall -shared -o $@ $^
 
 mreplay: mreplay.c
-	gcc -Wall -g -o $@ $^
-
-mtr: mtr.c
 	gcc -Wall -g -o $@ $^ -pthread
